@@ -1,0 +1,3 @@
+- name: Machine setup - server specific
+  hosts: localhost
+  become: true

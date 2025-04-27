@@ -1,1 +1,15 @@
 README.md
+setup.sh
+
+{{- if ne .chezmoi.osRelease.id "ubuntu" }}
+    .chezmoiscripts/ubuntu/**
+    .bootstrap-ansible
+{{- end }}
+
+{{- if ne .machineType "desktop" }}
+    .chezmoiscripts/ubuntu/desktop/**
+    .bootstrap-ansible/setup-desktop.yml
+{{- else if ne .machineType "server" }}
+    .chezmoiscripts/ubuntu/server/**
+    .bootstrap-ansible/setup-server.yml
+{{- end }}
