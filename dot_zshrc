@@ -1,0 +1,26 @@
+eval "$(starship init zsh)"
+
+# Fix Ctrl +left/right arrow keys (https://unix.stackexchange.com/questions/58870/ctrl-left-right-arrow-keys-issue)
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
+# Aliases
+alias zshrc='vim ~/.zshrc'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ll='ls -l'
+alias lla='ls -la'
+alias k='kubectl'
+alias t='talosctl'
+alias gitc='git commit -m'
+
+# Autocompletion
+source <(kubectl completion zsh)
+
+FPATH="$HOME/.docker/completions:$FPATH"
+autoload -Uz compinit
+compinit
+
+# Plugins
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

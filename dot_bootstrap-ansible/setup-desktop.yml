@@ -4,7 +4,7 @@
 
   tasks:
     # https://brave.com/linux/
-    - name: Install Brave browser
+    - name: Ensure Brave browser is installed
       block:
         - name: Install Brave browser - Check if GPG key already exists
           stat:

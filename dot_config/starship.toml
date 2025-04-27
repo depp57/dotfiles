@@ -1,0 +1,86 @@
+format = """
+$status\
+$username \
+$directory \
+$golang\
+$java\
+$nodejs\
+$python\
+$rust\
+$git_branch\
+$git_status"""
+
+right_format = '$cmd_duration $kubernetes'
+
+# disable the blank line at the start of the prompt
+add_newline = false
+
+[kubernetes]
+disabled = false
+format = '[$symbol$context( \($namespace\))]($style)'
+detect_files = ['k8s']
+
+[status]
+style = 'red'
+symbol = ' '
+disabled = false
+
+[cmd_duration]
+min_time = 500
+
+[username]
+style_user = 'green'
+format = '[ $user]($style)'
+show_always = true
+
+[git_branch]
+style = 'purple'
+symbol = ' '
+
+[git_status]
+style = 'purple'
+untracked = '?$count'
+modified = '~$count'
+staged = '+$count'
+deleted = '-$count'
+format = '([\[$staged$modified$deleted$untracked\] ]($style))'
+
+[directory]
+read_only = " 󰌾"
+truncation_symbol = '?/'
+truncation_length = 6
+style = 'cyan'
+format = '[on  $path]($style)'
+
+[git_commit]
+tag_symbol = '  '
+
+[golang]
+symbol = " "
+
+[hostname]
+ssh_symbol = " "
+
+[java]
+symbol = " "
+
+[kotlin]
+symbol = " "
+
+[nodejs]
+symbol = " "
+detect_files = ['package.json']
+
+[os.symbols]
+Debian = " "
+Linux = " "
+Macos = " "
+Raspbian = " "
+Ubuntu = " "
+Windows = "󰍲 "
+
+[python]
+symbol = " "
+
+[rust]
+symbol = "󱘗 "

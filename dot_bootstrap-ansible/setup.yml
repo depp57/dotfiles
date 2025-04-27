@@ -3,7 +3,11 @@
   become: true
 
   tasks:
-    - name: Install packages
+    - name: Get regular user
+      set_fact:
+        regular_user: "{{ ansible_env.SUDO_USER or ansible_user_id }}"
+
+    - name: Ensure package are installed
       package:
         name:
           - curl
@@ -12,3 +16,116 @@
           - vim
           - zsh
         state: present
+
+    - name: Ensure zsh is the default shell for users
+      user:
+        name: "{{ item }}"
+        shell: /bin/zsh
+      loop:
+        - "{{ regular_user }}"
+        - root
+      loop_control:
+        label: "{{ item }}"
+
+    - name: Ensure FiraCode Nerd Font is installed
+      block:
+        - name: Ensure user fonts directory exists
+          file:
+            path: "/usr/local/share/fonts/firacode"
+            state: directory
+            recurse: true
+            mode: 0755
+            owner: "{{ regular_user }}"
+
+        - name: Check if FiraCode Nerd font exists
+          find:
+            path: "/usr/local/share/fonts/firacode/"
+            patterns: "*.ttf"
+            file_type: file
+          register: font_fira_code
+
+        - name: Ensure FiraCode Nerd Font is installed
+          when: font_fira_code.matched == 0
+          unarchive:
+            src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/FiraCode.zip
+            dest: "/usr/local/share/fonts/firacode"
+            remote_src: true
+            mode: 0755
+            owner: "{{ regular_user }}"
+
+    - name: Ensure https://starship.rs/ is installed
+      vars:
+        starship_install_dir: "/usr/local/bin"
+      block:
+        - name: Check if starship is already installed
+          stat:
+            path: "{{ starship_install_dir }}/starship"
+          register: starship_bin
+
+        - name: Ensure starship is installed
+          when: not starship_bin.stat.exists
+          shell: "curl -sS https://starship.rs/install.sh | sh -s -- --bin-dir {{ starship_install_dir }} --yes"
+
+    - name: Ensure https://github.com/zsh-users/zsh-autosuggestions is installed
+      block:
+        - name: Check if zsh-autosuggestions is installed
+          stat:
+            path: "/home/{{ regular_user }}/.zsh/zsh-autosuggestions"
+          register: zsh_autosuggestions_bin
+
+        - name: Ensure zsh-autosuggestions is installed
+          when: not zsh_autosuggestions_bin.stat.exists
+          git:
+            repo: 'https://github.com/zsh-users/zsh-autosuggestions'
+            dest: "/home/{{ regular_user }}/.zsh/zsh-autosuggestions"
+
+    - name: Ensure https://github.com/zsh-users/zsh-syntax-highlighting is installed
+      block:
+        - name: Check if zsh-syntax-highlighting is installed
+          stat:
+            path: "/home/{{ regular_user }}/.zsh/zsh-syntax-highlighting"
+          register: zsh_syntax_bin
+
+        - name: Ensure zsh-syntax-highlighting is installed
+          when: not zsh_syntax_bin.stat.exists
+          git:
+            repo: 'https://github.com/zsh-users/zsh-syntax-highlighting'
+            dest: "/home/{{ regular_user }}/.zsh/zsh-syntax-highlighting"
+
+    - name: Ensure Docker is installed
+      block:
+        - name: Ensure Docker is installed - Ensure required packages are installed
+          apt:
+            name:
+              - ca-certificates
+
+        - name: Ensure Docker is installed - Add GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+
+        - name: Ensure Docker is installed - Add Docker repository
+          apt_repository:
+            repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+            state: present
+            update_cache: yes
+
+        - name: Ensure Docker is installed - Install Docker
+          apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
+        - name: Ensure Docker is started and enabled
+          service:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: Ensure Docker autocompletion file for zsh is generated
+          shell:
+            cmd: "mkdir -p /home/{{ regular_user }}/.docker/completions && docker completion zsh > /home/{{ regular_user }}/.docker/completions/_docker"
