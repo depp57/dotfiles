@@ -99,16 +99,24 @@
             name:
               - ca-certificates
 
+        - name: Ensure Docker is installed - Check if GPG key already exists
+          stat:
+            path: /etc/apt/keyrings/docker.asc
+          register: docker_gpg_key
+
         - name: Ensure Docker is installed - Add GPG key
-          apt_key:
+          when: not docker_gpg_key.stat.exists
+          get_url:
             url: https://download.docker.com/linux/ubuntu/gpg
-            state: present
+            dest: /etc/apt/keyrings/docker.asc
+            mode: '0644'
 
         - name: Ensure Docker is installed - Add Docker repository
-          apt_repository:
-            repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
-            state: present
-            update_cache: yes
+          when: not docker_gpg_key.stat.exists
+          copy:
+            dest: /etc/apt/sources.list.d/docker-release.list
+            content: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+            mode: '0644'
 
         - name: Ensure Docker is installed - Install Docker
           apt:
@@ -126,6 +134,44 @@
             state: started
             enabled: yes
 
-        - name: Ensure Docker autocompletion file for zsh is generated
+        - name: Ensure Docker autocompletion file for zsh is generated and updated
           shell:
             cmd: "mkdir -p /home/{{ regular_user }}/.docker/completions && docker completion zsh > /home/{{ regular_user }}/.docker/completions/_docker"
+
+    - name: Ensure kubectl is installed
+      block:
+        - name: Ensure kubectl is installed - Ensure required packages are installed
+          apt:
+            name:
+              - apt-transport-https
+              - gnupg
+
+        - name: Ensure kubectl is installed - Check if GPG key already exists
+          stat:
+            path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+          register: kubectl_gpg_key
+
+        - name: Ensure kubectl is installed - Add GPG key
+          when: not kubectl_gpg_key.stat.exists
+          # As per the official doc: the same signing key is used for all repositories so you can disregard the version in the URL
+          shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+          args:
+            creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+        - name: Ensure kubectl is installed - Set correct permissions for the key
+          file:
+            path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+            mode: '0644'
+
+        - name: Ensure kubectl is installed - Add kubectl repository
+          when: not kubectl_gpg_key.stat.exists
+          copy:
+            dest: /etc/apt/sources.list.d/kubectl-release.list
+            content: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /
+            mode: '0644'
+
+        - name: Ensure kubectl is installed - Install kubectl
+          apt:
+            name:
+              - kubectl
+            update_cache: true
