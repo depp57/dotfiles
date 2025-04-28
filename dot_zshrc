@@ -8,11 +8,13 @@ bindkey "^[[1;5D" backward-word
 alias zshrc='vim ~/.zshrc'
 alias ..='cd ..'
 alias ...='cd ../..'
-alias ll='ls -l'
-alias lla='ls -la'
+alias ll='lsd -l'
+alias lla='lsd -la'
 alias k='kubectl'
 alias t='talosctl'
 alias gitc='git commit -m'
+alias bat='batcat'
+
 
 # Autocompletion
 source <(kubectl completion zsh)

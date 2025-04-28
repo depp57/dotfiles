@@ -10,9 +10,12 @@
     - name: Ensure package are installed
       package:
         name:
+          - bat
           - curl
           - git
           - htop
+          - lsd
+          - ripgrep
           - vim
           - zsh
         state: present
