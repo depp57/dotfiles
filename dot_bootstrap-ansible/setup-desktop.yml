@@ -30,3 +30,9 @@
             update_cache: yes
             name: brave-browser
             state: present
+
+    # https://github.com/libratbag/libratbag: configure input devices
+    - name: Ensure ratbagd is installed
+      apt:
+        name: ratbagd
+        state: present
