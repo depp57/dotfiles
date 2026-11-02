@@ -1,5 +1,7 @@
 eval "$(starship init zsh)"
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # History
 HISTFILE=~/.zsh_history
 HISTSIZE=2000
@@ -21,14 +23,28 @@ alias t='talosctl'
 alias gitc='git commit -m'
 alias bat='batcat'
 
-
-# Autocompletion
-source <(kubectl completion zsh)
-
-FPATH="$HOME/.docker/completions:$FPATH"
+# Autocompletion scripts are pre-generated into ~/.local/share/zsh/completions (run `zcomp-refresh` after upgrading tools).
+fpath=(~/.local/share/zsh/completions ~/.docker/completions $fpath)
 autoload -Uz compinit
-compinit
+() {
+  local -a stale=(~/.zcompdump(N.mh+24))
+  if (( $#stale )) || [[ ! -s ~/.zcompdump ]]; then compinit; else compinit -C; fi
+}
+autoload -Uz bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/tofu tofu
 
-# Plugins
+zcomp-refresh() {
+  local d=~/.local/share/zsh/completions
+  kubectl completion zsh      > $d/_kubectl
+  talosctl completion zsh     > $d/_talosctl
+  helm completion zsh         > $d/_helm
+  fnm completions --shell zsh > $d/_fnm
+  rm -f ~/.zcompdump* && compinit && echo "completions refreshed"
+}
+
+# Zsh Plugins
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# fnm (Node version manager) - https://github.com/schniz/fnm#zsh
+eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"

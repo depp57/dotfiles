@@ -7,7 +7,7 @@ Dotfiles, managed with [`chezmoi`](https://github.com/twpayne/chezmoi).
 Run the convenience script on linux:
 
 ```shell
-sh -c "$(curl -fsLS https://raw.githubusercontent.com/depp57/dotfiles/refs/heads/master/setup.sh)" <server|desktop>
+sh -c "$(curl -fsLS https://raw.githubusercontent.com/depp57/dotfiles/refs/heads/main/setup.sh)" <server|desktop>
 ```
 
 <details>
