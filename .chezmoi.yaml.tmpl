@@ -1,0 +1,14 @@
+{{- $machineType := promptChoiceOnce . "machineType" "Machine type" (list "desktop" "server") -}}
+{{- $isDesktop := eq $machineType "desktop" -}}
+{{- $k8s   := promptBoolOnce . "features.k8s"   "Install Kubernetes tools (kubectl/helm/k9s)" $isDesktop -}}
+{{- $talos := promptBoolOnce . "features.talos" "Install Talos tools (talosctl)" $isDesktop -}}
+{{- $iac   := promptBoolOnce . "features.iac"   "Install IaC tools (OpenTofu/packer)" $isDesktop -}}
+{{- $node  := promptBoolOnce . "features.node"  "Install Node.js (fnm)" $isDesktop }}
+
+data:
+  machineType: {{ $machineType | quote }}
+  features:
+    k8s: {{ $k8s }}
+    talos: {{ $talos }}
+    iac: {{ $iac }}
+    node: {{ $node }}

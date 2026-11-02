@@ -69,32 +69,6 @@
           when: not starship_bin.stat.exists
           shell: "curl -sS https://starship.rs/install.sh | sh -s -- --bin-dir {{ starship_install_dir }} --yes"
 
-    - name: Ensure https://github.com/zsh-users/zsh-autosuggestions is installed
-      block:
-        - name: Check if zsh-autosuggestions is installed
-          stat:
-            path: "/home/{{ regular_user }}/.zsh/zsh-autosuggestions"
-          register: zsh_autosuggestions_bin
-
-        - name: Ensure zsh-autosuggestions is installed
-          when: not zsh_autosuggestions_bin.stat.exists
-          git:
-            repo: 'https://github.com/zsh-users/zsh-autosuggestions'
-            dest: "/home/{{ regular_user }}/.zsh/zsh-autosuggestions"
-
-    - name: Ensure https://github.com/zsh-users/zsh-syntax-highlighting is installed
-      block:
-        - name: Check if zsh-syntax-highlighting is installed
-          stat:
-            path: "/home/{{ regular_user }}/.zsh/zsh-syntax-highlighting"
-          register: zsh_syntax_bin
-
-        - name: Ensure zsh-syntax-highlighting is installed
-          when: not zsh_syntax_bin.stat.exists
-          git:
-            repo: 'https://github.com/zsh-users/zsh-syntax-highlighting'
-            dest: "/home/{{ regular_user }}/.zsh/zsh-syntax-highlighting"
-
     - name: Ensure Docker is installed
       block:
         - name: Ensure Docker is installed - Ensure required packages are installed
@@ -178,6 +152,3 @@
             name:
               - kubectl
             update_cache: true
-
-    - name: Ensure k9s is installed # snap package is out of date, so install using the latest build from GitHub
-      shell: wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_amd64.deb && apt install ./k9s_linux_amd64.deb && rm k9s_linux_amd64.deb

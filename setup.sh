@@ -25,10 +25,11 @@ function download_chezmoi() {
 }
 
 function run_chezmoi() {
+  local machine_type="$1"
   os_name=$(grep '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')
 
   download_chezmoi "$os_name"
-  chezmoi init depp57 --apply
+  chezmoi init depp57 --apply --promptChoice "Machine type=$machine_type"
 }
 
 
@@ -42,14 +43,7 @@ function main() {
 
   echo "$DOTFILES_LOGO"
 
-   # Create ~/.config/chezmoi/chezmoi.toml dynamically
-  mkdir -p "$HOME/.config/chezmoi"
-  cat > "$HOME/.config/chezmoi/chezmoi.toml" <<EOF
-[data]
-machineType = "$machine_type"
-EOF
-
-  run_chezmoi
+  run_chezmoi "$machine_type"
 }
 
 main "$@"

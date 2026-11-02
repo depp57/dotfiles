@@ -22,14 +22,8 @@ cd /usr/local && sh -c "$(curl -fsLS get.chezmoi.io)"
 snap install chezmoi --classic
 ```
 
-2. Create the file ~/.config/chezmoi/chezmoi.toml
-
-```toml
-[data]
-machineType = "<server|desktop>"
-```
-
-3. Download and apply the configuration.
+2. Download and apply the configuration. On the first run chezmoi asks the machine type
+   (`desktop`/`server`) and which optional tool sets to install.
 
 ```shell
 chezmoi init depp57 --apply

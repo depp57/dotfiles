@@ -1,0 +1,46 @@
+{{- $arch := .chezmoi.arch }}
+
+
+# --- zsh plugins -------------------------------------------------------------
+.local/share/zsh/plugins/zsh-autosuggestions:
+  type: archive
+  url: https://github.com/zsh-users/zsh-autosuggestions/archive/refs/heads/master.tar.gz
+  exact: true
+  stripComponents: 1
+  refreshPeriod: 168h
+
+.local/share/zsh/plugins/zsh-syntax-highlighting:
+  type: archive
+  url: https://github.com/zsh-users/zsh-syntax-highlighting/archive/refs/heads/master.tar.gz
+  exact: true
+  stripComponents: 1
+  refreshPeriod: 168h
+
+# --- Node.js version manager -------------------------------------------------
+{{- if .features.node }}
+.local/bin/fnm:
+  type: archive-file
+  url: https://github.com/Schniz/fnm/releases/latest/download/fnm-{{ if eq $arch "arm64" }}arm64{{ else }}linux{{ end }}.zip
+  path: fnm
+  executable: true
+  refreshPeriod: 168h
+{{- end }}
+
+# --- Kubernetes TUI ----------------------------------------------------------
+{{- if .features.k8s }}
+.local/bin/k9s:
+  type: archive-file
+  url: https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_{{ $arch }}.tar.gz
+  path: k9s
+  executable: true
+  refreshPeriod: 168h
+{{- end }}
+
+# --- Talos CLI ---------------------------------------------------------------
+{{- if .features.talos }}
+.local/bin/talosctl:
+  type: file
+  url: https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-{{ $arch }}
+  executable: true
+  refreshPeriod: 168h
+{{- end }}
