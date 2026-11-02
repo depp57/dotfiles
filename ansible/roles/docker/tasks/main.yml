@@ -8,7 +8,7 @@
         key_url: https://download.docker.com/linux/ubuntu/gpg
         key_path: /etc/apt/keyrings/docker.asc
         uris: https://download.docker.com/linux/ubuntu
-        suites: "{{ ansible_distribution_release }}"
+        suites: "{{ ansible_facts['distribution_release'] }}"
         components: stable
 
 - name: Ensure Docker is installed
