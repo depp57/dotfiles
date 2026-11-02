@@ -1,50 +1,8 @@
-eval "$(starship init zsh)"
+# Zsh config split in files ~/.config/zsh/*.zsh
+for f in ~/.config/zsh/*.zsh(N); do
+  source "$f"
+done
+unset f
 
-export PATH="$HOME/.local/bin:$PATH"
-
-# History
-HISTFILE=~/.zsh_history
-HISTSIZE=2000
-SAVEHIST=2000
-setopt share_history
-
-# Fix Ctrl +left/right arrow keys (https://unix.stackexchange.com/questions/58870/ctrl-left-right-arrow-keys-issue)
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
-
-# Aliases
-alias zshrc='vim ~/.zshrc'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ll='lsd -l'
-alias lla='lsd -la'
-alias k='kubectl'
-alias t='talosctl'
-alias gitc='git commit -m'
-alias bat='batcat'
-
-# Autocompletion scripts are pre-generated into ~/.local/share/zsh/completions (run `zcomp-refresh` after upgrading tools).
-fpath=(~/.local/share/zsh/completions ~/.docker/completions $fpath)
-autoload -Uz compinit
-() {
-  local -a stale=(~/.zcompdump(N.mh+24))
-  if (( $#stale )) || [[ ! -s ~/.zcompdump ]]; then compinit; else compinit -C; fi
-}
-autoload -Uz bashcompinit && bashcompinit
-complete -o nospace -C /usr/bin/tofu tofu
-
-zcomp-refresh() {
-  local d=~/.local/share/zsh/completions
-  kubectl completion zsh      > $d/_kubectl
-  talosctl completion zsh     > $d/_talosctl
-  helm completion zsh         > $d/_helm
-  fnm completions --shell zsh > $d/_fnm
-  rm -f ~/.zcompdump* && compinit && echo "completions refreshed"
-}
-
-# Zsh Plugins
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# fnm (Node version manager) - https://github.com/schniz/fnm#zsh
-eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
+# Local config
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
