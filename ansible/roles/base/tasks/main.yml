@@ -1,0 +1,24 @@
+- name: Ensure packages are installed
+  apt:
+    name:
+      - bat
+      - curl
+      - git
+      - htop
+      - lsd
+      - ripgrep
+      - unzip
+      - vim
+      - zsh
+      - zsh-autosuggestions
+      - zsh-syntax-highlighting
+    state: present
+    update_cache: true
+
+- name: Ensure zsh is the default shell
+  user:
+    name: "{{ item }}"
+    shell: /bin/zsh
+  loop:
+    - "{{ regular_user }}"
+    - root

@@ -1,8 +1,8 @@
+#!/usr/bin/env bash
 # Regenerates zsh completion scripts for the tools installed on this machine.
 # Runs after every `chezmoi apply`.
 
 set -euo pipefail
-export PATH="$HOME/.local/bin:$PATH"
 
 dir="$HOME/.local/share/zsh/completions"
 mkdir -p "$dir"

@@ -1,0 +1,25 @@
+# features.iac
+
+- name: Ensure OpenTofu and HashiCorp apt repositories are configured
+  include_tasks: "{{ playbook_dir }}/tasks/apt-repos.yml"
+  vars:
+    apt_repos:
+      - name: opentofu
+        key_url: https://packages.opentofu.org/opentofu/tofu/gpgkey
+        key_path: /etc/apt/keyrings/opentofu-repo.asc
+        uris: https://packages.opentofu.org/opentofu/tofu/any/
+        suites: any
+        components: main
+      - name: hashicorp
+        key_url: https://apt.releases.hashicorp.com/gpg
+        key_path: /etc/apt/keyrings/hashicorp.asc
+        uris: https://apt.releases.hashicorp.com
+        suites: "{{ ansible_distribution_release }}"
+        components: main
+
+- name: Ensure OpenTofu and Packer are installed
+  apt:
+    name:
+      - tofu
+      - packer
+    state: present

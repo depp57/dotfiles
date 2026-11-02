@@ -1,0 +1,40 @@
+# features.k8s
+
+- name: Ensure Kubernetes and Helm apt repositories are configured
+  include_tasks: "{{ playbook_dir }}/tasks/apt-repos.yml"
+  vars:
+    kubernetes_version: "{{ lookup('ansible.builtin.url', 'https://dl.k8s.io/release/stable.txt') | regex_search('^v[0-9]+\\.[0-9]+') }}"
+    apt_repos:
+      - name: kubernetes
+        key_url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/Release.key"
+        key_path: /etc/apt/keyrings/kubernetes.asc
+        uris: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/deb/"
+        suites: /
+      - name: helm
+        key_url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+        key_path: /etc/apt/keyrings/helm.asc
+        uris: https://packages.buildkite.com/helm-linux/helm-debian/any/
+        suites: any
+        components: main
+
+- name: Ensure kubectl and helm are installed
+  apt:
+    name:
+      - kubectl
+      - helm
+    state: latest
+
+# https://github.com/derailed/k9s#installation
+- name: Ensure k9s is installed
+  apt:
+    deb: "https://github.com/derailed/k9s/releases/latest/download/k9s_linux_{{ deb_arch }}.deb"
+
+# https://www.talos.dev/latest/talos-guides/install/talosctl/
+- name: Ensure talosctl is installed
+  when: features.talos | default(false)
+  get_url:
+    url: "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-{{ deb_arch }}"
+    checksum: "sha256:https://github.com/siderolabs/talos/releases/latest/download/sha256sum.txt"
+    dest: /usr/local/bin/talosctl
+    timeout: 60
+    mode: "0755"

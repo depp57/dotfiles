@@ -1,0 +1,27 @@
+- name: Machine setup
+  hosts: localhost
+  become: true
+
+  vars:
+    regular_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
+    deb_arch: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}[ansible_architecture] }}"
+
+    # Defaults, overridden by chezmoi
+    machine_type: server
+    features: {}
+
+  roles:
+    - role: base
+    - role: docker
+
+    - role: desktop
+      when: machine_type == 'desktop'
+
+    - role: k8s
+      when: features.k8s | default(false)
+
+    - role: iac
+      when: features.iac | default(false)
+
+    - role: node
+      when: features.node | default(false)

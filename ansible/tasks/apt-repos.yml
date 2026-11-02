@@ -1,0 +1,37 @@
+# Reusable: add third-party apt repositories (.sources format)
+
+- name: Ensure apt keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download repository signing keys
+  get_url:
+    url: "{{ item.key_url }}"
+    dest: "{{ item.key_path }}"
+    mode: "0644"
+    force: false
+  loop: "{{ apt_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Configure repositories
+  deb822_repository:
+    name: "{{ item.name }}"
+    types: deb
+    uris: "{{ item.uris }}"
+    suites: "{{ item.suites }}"
+    components: "{{ item.components | default(omit) }}"
+    architectures: "{{ item.architectures | default(omit) }}"
+    signed_by: "{{ item.key_path }}"
+    enabled: true
+  loop: "{{ apt_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: apt_repos_result
+
+- name: Refresh apt cache after repository changes
+  apt:
+    update_cache: true
+  when: apt_repos_result is changed

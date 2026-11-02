@@ -1,0 +1,41 @@
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: Ensure Docker apt repository is configured
+  include_tasks: "{{ playbook_dir }}/tasks/apt-repos.yml"
+  vars:
+    apt_repos:
+      - name: docker
+        key_url: https://download.docker.com/linux/ubuntu/gpg
+        key_path: /etc/apt/keyrings/docker.asc
+        uris: https://download.docker.com/linux/ubuntu
+        suites: "{{ ansible_distribution_release }}"
+        components: stable
+
+- name: Ensure Docker is installed
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Ensure Docker daemon config is deployed (log rotation)
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  notify: Restart docker
+
+- name: Ensure Docker is started and enabled
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ensure the regular user can use Docker without sudo
+  user:
+    name: "{{ regular_user }}"
+    groups: docker
+    append: true

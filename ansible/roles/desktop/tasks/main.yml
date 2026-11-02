@@ -1,0 +1,39 @@
+- name: Ensure desktop apt repositories are configured
+  include_tasks: "{{ playbook_dir }}/tasks/apt-repos.yml"
+  vars:
+    apt_repos:
+      # https://brave.com/linux/
+      - name: brave-browser-release
+        key_url: https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+        key_path: /usr/share/keyrings/brave-browser-archive-keyring.gpg
+        uris: https://brave-browser-apt-release.s3.brave.com/
+        suites: stable
+        components: main
+
+- name: Ensure desktop packages are installed
+  apt:
+    name:
+      - brave-browser
+      - fontconfig
+      # https://github.com/libratbag/libratbag: configure input devices (used by configure-g915-macros.sh)
+      - ratbagd
+      # https://starship.rs
+      - starship
+    state: present
+
+# Font with the icons used by the starship prompt
+# https://github.com/ryanoasis/nerd-fonts
+- name: Ensure FiraCode Nerd Font is installed
+  block:
+    - name: Ensure FiraCode Nerd Font directory exists
+      file:
+        path: /usr/local/share/fonts/firacode
+        state: directory
+        mode: "0755"
+
+    - name: Ensure the latest FiraCode Nerd Font is installed
+      unarchive:
+        src: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
+        dest: /usr/local/share/fonts/firacode
+        remote_src: true
+      notify: Refresh font cache

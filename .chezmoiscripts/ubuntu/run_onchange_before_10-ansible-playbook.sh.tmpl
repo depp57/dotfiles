@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Runs the ansible playbook
+# Re-run whenever a file under ansible/ changes: {{ output "sh" "-c" (printf "cd %s && find ansible -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum" (.chezmoi.sourceDir | quote)) | trim }}
+
+set -euo pipefail
+
+export ANSIBLE_CONFIG={{ joinPath .chezmoi.sourceDir "ansible" "ansible.cfg" | quote }}
+ansible-playbook {{ joinPath .chezmoi.sourceDir "ansible" "site.yml" | quote }} --ask-become-pass \
+  --extra-vars {{ dict "machine_type" .machineType "features" .features | toJson | squote }}

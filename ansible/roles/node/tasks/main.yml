@@ -1,0 +1,9 @@
+# features.node
+
+- name: Ensure the latest fnm is installed
+  unarchive:
+    src: "https://github.com/Schniz/fnm/releases/latest/download/fnm-{{ 'arm64' if deb_arch == 'arm64' else 'linux' }}.zip"
+    dest: /usr/local/bin
+    remote_src: true
+    include: [fnm]
+    mode: "0755"

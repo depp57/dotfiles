@@ -1,5 +1,5 @@
 # Completion scripts are pre-generated into ~/.local/share/zsh/completions
-fpath=(~/.local/share/zsh/completions ~/.docker/completions $fpath)
+fpath=(~/.local/share/zsh/completions $fpath)
 
 autoload -Uz compinit
 () {
